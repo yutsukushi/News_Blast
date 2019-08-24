@@ -1,6 +1,8 @@
 // Dependencies
 var express = require("express");
 var mongojs = require("mongojs");
+var logger = require("morgan");
+var mongoose = require("mongoose");
 
 var axios = require("axios");
 var cheerio = require("cheerio");
@@ -12,17 +14,27 @@ var app = express();
 var databaseURL = "newsBlastDb";
 var collection = ["newsData"]
 
+// Configure middleware
+
+// Use morgan logger for logging requests
+app.use(logger("dev"));
+// Parse request body as JSON
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+// Make public a static folder
+app.use(express.static("public"));
+
 // Heroku deployed DB
 var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlines";
 
-// mongoose.connect(MONGODB_URI);
+mongoose.connect(MONGODB_URI);
 
-if (process.env.MONGODB_URI) { 
-    mongoose.connect(MONGODB_URI);
-} else { 
-    var databaseURL = "newsBlastDb";
-    var collection = ["newsData"]
-}
+// if (process.env.MONGODB_URI) { 
+//     mongoose.connect(MONGODB_URI);
+// } else { 
+//     var databaseURL = "newsBlastDb";
+//     var collection = ["newsData"]
+// }
 
 // Connect mongojs config to db variable
 var db = mongojs(databaseURL, collection);
