@@ -15,6 +15,7 @@ var databaseURL = "newsBlastDb";
 var collection = ["newsData"]
 
 // Configure middleware
+var PORT = process.env.PORT || 3000
 
 // Use morgan logger for logging requests
 app.use(logger("dev"));
@@ -42,7 +43,7 @@ app.get("/", function(req, res) {
 })
 
 // Listening on port 3000
-app.listen(3000, function() {
+app.listen(PORT, function() {
     console.log("App running on port 3000!");
 })
 
