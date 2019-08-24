@@ -25,16 +25,9 @@ app.use(express.json());
 app.use(express.static("public"));
 
 // Heroku deployed DB
-var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlines";
+var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/newsBlastDb";
 
 mongoose.connect(MONGODB_URI);
-
-// if (process.env.MONGODB_URI) { 
-//     mongoose.connect(MONGODB_URI);
-// } else { 
-//     var databaseURL = "newsBlastDb";
-//     var collection = ["newsData"]
-// }
 
 // Connect mongojs config to db variable
 var db = mongojs(databaseURL, collection);
@@ -44,7 +37,8 @@ db.on("error", function(error) {
 
 // Main route/Landing page
 app.get("/", function(req, res) {
-    res.send("Hello world!"); //Temporary content
+    console.log("test");
+    // res.send("Hello world!"); //Temporary content
 })
 
 // Listening on port 3000
