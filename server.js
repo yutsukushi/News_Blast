@@ -14,7 +14,7 @@ var app = express();
 var databaseURL = "newsBlastDb";
 var collection = ["newsData"]
 
-// Configure middleware
+// Establishing port
 var PORT = process.env.PORT || 3000
 
 // Use morgan logger for logging requests
@@ -42,6 +42,25 @@ app.get("/", function(req, res) {
     // res.send("Hello world!"); //Temporary content
 })
 
+app.get("/scraped", function(req, res) {
+    axios.get("https://www.oceannews.com/news/science-technology/")
+    .then(function(articles) {
+        var $ = cheerio.load(articles.data);
+        var results = [];
+
+        $("h2[itemprop='headline']").each(function(i, element) {
+            var title = $(element).text();
+            var link = $(element).children("a").attr("href");
+        
+
+            results.push({
+                title: title,
+                link: link
+            });
+        })
+        console.log(results);
+    })
+})
 // Listening on port 3000
 app.listen(PORT, function() {
     console.log("App running on port 3000!");
