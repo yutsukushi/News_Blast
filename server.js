@@ -14,6 +14,7 @@ var app = express();
 var databaseURL = "newsBlastDb";
 var collection = ["newsData"]
 
+var model = require("./models");
 // Establishing port
 var PORT = process.env.PORT || 3000
 
@@ -36,31 +37,45 @@ db.on("error", function(error) {
     console.log("Database Error:", error);
 })
 
-// Main route/Landing page
-app.get("/", function(req, res) {
-    console.log("test");
-    // res.send("Hello world!"); //Temporary content
-})
-
+// web scraping process for the oceannews website
 app.get("/scraped", function(req, res) {
     axios.get("https://www.oceannews.com/news/science-technology/")
     .then(function(articles) {
         var $ = cheerio.load(articles.data);
-        var results = [];
+        var results = {};
 
         $("h2[itemprop='headline']").each(function(i, element) {
-            var title = $(element).text();
-            var link = $(element).children("a").attr("href");
+            results.title = $(element)
+            .text();
+            results.link = $(element)
+            .children("a")
+            .attr("href");
         
-
-            results.push({
-                title: title,
-                link: link
-            });
+            model.Article.create(results)
+                .then(function(dbArticle) {
+                // View the added result in the console
+                    console.log(dbArticle);
+                    })
+                    .catch(function(err) {
+                    // If an error occurred, log it
+                    console.log(err);
+                    });
         })
-        console.log(results);
+    })
+    res.send("Scrape complete");
+})
+
+// GET route for /newsfeed route to find all articles in the database
+app.get("/newsfeed", function(req, res) {
+    model.Article.find({})
+    .then(function(dbArticle) {
+        res.json(dbArticle);
+    })
+    .catch(function(err) {
+        res.json(err);
     })
 })
+
 // Listening on port 3000
 app.listen(PORT, function() {
     console.log("App running on port 3000!");
