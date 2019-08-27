@@ -1,0 +1,28 @@
+<div class="container">
+    <div class="col-md-12">
+        <div class="jumbotron jumbotron-fluid">
+            <h1 class="display-4">News Blast!</h1>
+            <p class="lead">This is a modified jumbotron that occupies the entire horizontal space of its parent.</p>
+            <button type="button" class="btn btn-primary" action="/savedarticles" method="GET">Saved Articles</button>
+            {{!-- <button type="button" class="btn btn-warning" action="/scraped" method="GET">Scrape for Articles</button> --}}
+            <a href="/scraped" >Scrape the Article</a>
+        </div>
+    </div>
+    <div id="articles"></div>
+    <div id="notes"></div>
+</div>
+<div class="container">
+    <div class="display-articles">
+        {{#each db_headlines}}
+        <div class="row">
+            <div class="col-10">
+                <h3><a href={{this.link}}>{{this.title}}</a></h3>
+                <p>{{this.summary}}</p>
+            </div>
+
+        </div>
+        {{/each}}
+
+    </div>
+
+</div>

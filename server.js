@@ -3,12 +3,19 @@ var express = require("express");
 var mongojs = require("mongojs");
 var logger = require("morgan");
 var mongoose = require("mongoose");
+var exphbs = require("express-handlebars");
 
 var axios = require("axios");
 var cheerio = require("cheerio");
 
 // Initialize Express
 var app = express();
+
+// Setting up handlebars
+app.engine('handlebars', exphbs({
+    defaultLayout: 'main'
+}));
+app.set("view engine", "handlebars");
 
 // MongoDB config
 var databaseURL = "newsBlastDb";
@@ -36,9 +43,14 @@ var db = mongojs(databaseURL, collection);
 db.on("error", function(error) {
     console.log("Database Error:", error);
 })
+app.get("/", (req, res) => {
+    res.render("home");
+})
 
 // web scraping process for the oceannews website
 app.get("/scraped", function(req, res) {
+    var headlines =[];
+    console.log("inside the scrape get route")
     axios.get("https://www.oceannews.com/news/science-technology/")
     .then(function(articles) {
         var $ = cheerio.load(articles.data);
@@ -50,31 +62,60 @@ app.get("/scraped", function(req, res) {
             results.link = $(element)
             .children("a")
             .attr("href");
-        
-            model.Article.create(results)
-                .then(function(dbArticle) {
+            results.summary = $(element).parent().parent()
+            .text(); //TODO
+
+            headlines.push(results);
+           
+        });
+        console.log("headlines: " +JSON.stringify(headlines));
+        model.Article.create(headlines)
+            .then(function(dbArticle) {
                 // View the added result in the console
                     console.log(dbArticle);
-                    })
-                    .catch(function(err) {
+                    console.log("saved article")
+                    res.render("home", {db_headlines: dbArticle});
+            })
+            .catch(function(err) {
                     // If an error occurred, log it
                     console.log(err);
-                    });
+            });
         })
-    })
-    res.send("Scrape complete");
+    // res.redirect("/scraped")
+    // res.send("Scrape complete");
 })
 
 // GET route for /newsfeed route to find all articles in the database
-app.get("/newsfeed", function(req, res) {
-    model.Article.find({})
-    .then(function(dbArticle) {
-        res.json(dbArticle);
-    })
-    .catch(function(err) {
-        res.json(err);
-    })
-})
+// app.get("/newsfeed", function(req, res) {
+//     model.Article.find({})
+//     .then(function(dbArticle) {
+//         res.json(dbArticle);
+//     })
+//     .catch(function(err) {
+//         res.json(err);
+//     })
+// })
+
+// save articles process
+// app.get("/savedarticles").then(function(res){
+//     model.Article.find({saved: true})
+// })
+
+// app.get("/savedarticles/:id").then(function(res) {
+//     // post comment on specifical article
+//     model.Note.create(req.body)
+//         .then(function(dbNote){
+//         return db.Article.findOneAndUpdate({ _id: req.params.id }, { note: dbNote._id }, { new: true });
+//     })
+//     .then(function(dbArticle) {
+//         // If we were able to successfully update an Article, send it back to the client
+//         res.json(dbArticle);
+//       })
+//       .catch(function(err) {
+//         // If an error occurred, send it to the client
+//         res.json(err);
+//       });
+// })
 
 // Listening on port 3000
 app.listen(PORT, function() {
