@@ -3,13 +3,15 @@
         <div class="jumbotron jumbotron-fluid">
             <h1 class="display-4">News Blast!</h1>
             <p class="lead">This is a modified jumbotron that occupies the entire horizontal space of its parent.</p>
-            <button type="button" class="btn btn-primary" action="/savedarticles" method="GET">Saved Articles</button>
-            {{!-- <button type="button" class="btn btn-warning" action="/scraped" method="GET">Scrape for Articles</button> --}}
-            <a href="/scraped" >Scrape the Article</a>
+            
+            <form action="/savedarticles" method="GET">
+                <button type="button" class="btn btn-primary">Saved Articles</button>
+            </form>
+            <form action="/scraped" method="GET">
+                <button type="submit" class="btn btn-warning">Scraped Articles</button>
+            </form>
         </div>
     </div>
-    <div id="articles"></div>
-    <div id="notes"></div>
 </div>
 <div class="container">
     <div class="display-articles">
