@@ -11,12 +11,6 @@ var cheerio = require("cheerio");
 // Initialize Express
 var app = express();
 
-// Setting up handlebars
-app.engine('handlebars', exphbs({
-    defaultLayout: 'main'
-}));
-app.set("view engine", "handlebars");
-
 // MongoDB config
 var databaseURL = "newsBlastDb";
 var collection = ["newsData"]
@@ -32,6 +26,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 // Make public a static folder
 app.use(express.static("public"));
+
+// Setting up handlebars
+app.engine('handlebars', exphbs({ defaultLayout: 'main' }));
+app.set("view engine", "handlebars");
 
 // Heroku deployed DB
 var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/newsBlastDb";
@@ -67,22 +65,20 @@ app.get("/scraped", function(req, res) {
 
             headlines.push(results);
            
-        });
+        })
         console.log("headlines: " +JSON.stringify(headlines));
         model.Article.create(headlines)
             .then(function(dbArticle) {
                 // View the added result in the console
                     console.log(dbArticle);
-                    console.log("saved article")
                     res.render("home", {db_headlines: dbArticle});
             })
             .catch(function(err) {
                     // If an error occurred, log it
                     console.log(err);
             });
-        })
-    // res.redirect("/scraped")
-    // res.send("Scrape complete");
+        
+    });
 })
 
 // GET route for /newsfeed route to find all articles in the database
@@ -97,8 +93,10 @@ app.get("/scraped", function(req, res) {
 // })
 
 // save articles process
-// app.get("/savedarticles").then(function(res){
-//     model.Article.find({saved: true})
+// app.get("/savedarticles").then(function(data){
+// //     model.Article.findOne({}).then(function(req,res) {
+// //       res.render("")
+// // })
 // })
 
 // app.get("/savedarticles/:id").then(function(res) {
