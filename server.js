@@ -83,61 +83,75 @@ app.get("/scraped", function(req, res) {
                     })
                 }
             }
-            
         })
-        // res.redirect('/');
         db.Article.find({})
-    .then(function(dbArticle) {
-        var article = {db_headlines: dbArticle};
-        res.render('home', article);
-        // res.json(dbArticle);
-    })
-    .catch(function(err) {
-        res.json(err);
-    })
-    })     
+        .then(function(dbArticle) {
+            var article = {db_headlines: dbArticle};
+            res.render('home', article);
+        })
+        .catch(function(err) {
+            res.json(err);
+        })
+        })     
 })
 
-// GET route for /newsfeed route to find all articles in the database
-// app.get("/newsfeed", function(req, res) {
-//     // db.Article.find({})
-//     db.Article.findAll({})
-//     .then(function(dbArticle) {
-//         var article = {db_headlines: dbArticle};
-//         res.render('home', article);
-//         // res.json(dbArticle);
+// PSEUDOCODE
+
+// article property, "saved", to be updated to true
+// on the /savedarticles page, find all articles with "saved": true
+// create a note on the article with the unique ID
+ 
+
+// save articles
+// app.put("/savedarticles", function(res){
+//     // set clicked article property of saved to true,
+//     db.Article.update({$set: { "saved": true }})
+//     .then(function(savedArticle) {
+//        res.json(savedArticle);
 //     })
 //     .catch(function(err) {
 //         res.json(err);
 //     })
 // })
 
-// save articles process
-// app.get("/savedarticles").then(function(data){
-// //     model.Article.findOne({}).then(function(req,res) {
-// //       res.render("")
-// // })
+// // render the saved article in /savedarticles route
+// app.get("/savedarticles", function(res) {
+//     db.Article.find({ "saved": true })
+//         .then(function(savedArticle) {
+//             var article = { dbSaved: savedArticle };
+//             res.render("saved", article);
+//             // res.json(dbArticle);
+//         })
+//         .catch(function(err) {
+//             res.json(err);
+//         })
+// })
+    
+// // post comments on specific article
+// app.get("/savedarticles/:id", function(res) {
+//     Note.create(req.body)
+//     .then(function(dbNote){
+//     return Article.findOneAndUpdate({ _id: req.params.id }, { note: dbNote._id }, { new: true });
+//     })
+//     .then(function(dbArticle) {
+//         // If we were able to successfully update an Article, send it back to the client
+//         res.render("home", dbArticle)
+//       .catch(function(err) {
+//         // If an error occurred, send it to the client
+//         res.json(err);
+//       });
+//     })
 // })
 
-app.get("/savedarticles/:id", function(res) {
-    // post comment on specifical article
-    Note.create(req.body)
-        .then(function(dbNote){
-        return Article.findOneAndUpdate({ _id: req.params.id }, { note: dbNote._id }, { new: true });
-    })
-    .then(function(dbArticle) {
-        // If we were able to successfully update an Article, send it back to the client
-        res.render("home", dbArticle)
-      .catch(function(err) {
-        // If an error occurred, send it to the client
-        res.json(err);
-      });
-    })
-})
+// app.delete("/delete/:id", function(req, res) {
+//     db.Note.remove({ note: res._id })
+//     .then(function(deleteComment) {
+//         res.render("saved", deleteComment);
+//     })
+// })
 
 // Listening on port 3000
 app.listen(PORT, function() {
     console.log("App running on port 3000!");
 })
 
-// set up server code below here!

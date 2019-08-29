@@ -2,7 +2,7 @@
     <div class="col-md-12">
         <div class="jumbotron jumbotron-fluid">
             <h1 class="display-4">News Blast!</h1>
-            <p class="lead">Bringing anything relating to Oceannews in science and technology.</p>
+            <p class="lead">Bringing anything relating to Oceannews in science and technology to you.</p>
             <form action="/savedarticles" method="GET">
                 <button type="submit" class="btn btn-primary">Saved Articles</button>
             </form>
@@ -20,6 +20,9 @@
                     <div class="col-10">
                         <h3><a href="https://www.oceannews.com{{this.link}}" target="_blank">{{this.title}}</a></h3>
                         <p>{{this.summary}}</p>
+                        <form action="/savedarticles" method="PUT">
+                            <button type="save" class="btn btn-primary">Save</button>
+                        </form>
                     </div>
                 </div>
             {{/each}}
