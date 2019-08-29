@@ -16,7 +16,7 @@ var ArticleSchema = new Schema({
     type: String,
     required: true
   },
-  summary : {
+  summary: {
     type: String,
     required: true
   },

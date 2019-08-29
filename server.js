@@ -1,6 +1,5 @@
 // Dependencies
 var express = require("express");
-var mongojs = require("mongojs");
 var logger = require("morgan");
 var mongoose = require("mongoose");
 var exphbs = require("express-handlebars");
@@ -11,11 +10,9 @@ var cheerio = require("cheerio");
 // Initialize Express
 var app = express();
 
-// MongoDB config
-var databaseURL = "newsBlastDb";
-var collection = ["newsData"]
+// Importing models folder
+var db = require("./models");
 
-var model = require("./models");
 // Establishing port
 var PORT = process.env.PORT || 3000
 
@@ -36,56 +33,79 @@ var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/newsBlastDb";
 
 mongoose.connect(MONGODB_URI);
 
-// Connect mongojs config to db variable
-var db = mongojs(databaseURL, collection);
-db.on("error", function(error) {
-    console.log("Database Error:", error);
-})
+// ROUTES 
+
 app.get("/", (req, res) => {
     res.render("home");
 })
 
 // web scraping process for the oceannews website
 app.get("/scraped", function(req, res) {
-    var headlines =[];
+   
     console.log("inside the scrape get route")
     axios.get("https://www.oceannews.com/news/science-technology/")
     .then(function(articles) {
         var $ = cheerio.load(articles.data);
-        var results = {};
-
+        var titleArray =[];
         $("h2[itemprop='headline']").each(function(i, element) {
+            var results = {};
             results.title = $(element)
-            .text();
+            .text()
+            .trim();
             results.link = $(element)
             .children("a")
             .attr("href");
-            results.summary = $(element).parent().parent()
-            .text(); //TODO
-
-            headlines.push(results);
-           
+            results.summary = $(element)
+            .parent()
+            .parent()
+            .text()
+            .trim(); 
+            
+            console.log("article:" ,results)
+            if(results.title !== "" && results.link !== ""){
+                //check for duplicates
+                if(titleArray.indexOf(results.title) == -1){
+                    titleArray.push(results.title);
+                    // console.log("title array: " +titleArray);
+                    //only add the article if it is not saved
+                    db.Article.countDocuments({title: results.title}, function(err, test){
+                        // if test is 0, the entry is unique and good to save
+                        console.log("test: " + test)
+                        if(test === 0){
+                            var entry = new db.Article(results);
+                            console.log("entry: " + entry);
+                            entry.save(function(err, doc){
+                                if(err){
+                                    console.log(err);
+                                }
+                            })
+                        }
+                    })
+                }
+            }
+            
         })
-        console.log("headlines: " +JSON.stringify(headlines));
-        model.Article.create(headlines)
-            .then(function(dbArticle) {
-                // View the added result in the console
-                    console.log(dbArticle);
-                    res.render("home", {db_headlines: dbArticle});
-            })
-            .catch(function(err) {
-                    // If an error occurred, log it
-                    console.log(err);
-            });
-        
-    });
+        // res.redirect('/');
+        db.Article.find({})
+    .then(function(dbArticle) {
+        var article = {db_headlines: dbArticle};
+        res.render('home', article);
+        // res.json(dbArticle);
+    })
+    .catch(function(err) {
+        res.json(err);
+    })
+    })     
 })
 
 // GET route for /newsfeed route to find all articles in the database
 // app.get("/newsfeed", function(req, res) {
-//     model.Article.find({})
+//     // db.Article.find({})
+//     db.Article.findAll({})
 //     .then(function(dbArticle) {
-//         res.json(dbArticle);
+//         var article = {db_headlines: dbArticle};
+//         res.render('home', article);
+//         // res.json(dbArticle);
 //     })
 //     .catch(function(err) {
 //         res.json(err);
@@ -99,21 +119,21 @@ app.get("/scraped", function(req, res) {
 // // })
 // })
 
-// app.get("/savedarticles/:id").then(function(res) {
-//     // post comment on specifical article
-//     model.Note.create(req.body)
-//         .then(function(dbNote){
-//         return db.Article.findOneAndUpdate({ _id: req.params.id }, { note: dbNote._id }, { new: true });
-//     })
-//     .then(function(dbArticle) {
-//         // If we were able to successfully update an Article, send it back to the client
-//         res.json(dbArticle);
-//       })
-//       .catch(function(err) {
-//         // If an error occurred, send it to the client
-//         res.json(err);
-//       });
-// })
+app.get("/savedarticles/:id", function(res) {
+    // post comment on specifical article
+    Note.create(req.body)
+        .then(function(dbNote){
+        return Article.findOneAndUpdate({ _id: req.params.id }, { note: dbNote._id }, { new: true });
+    })
+    .then(function(dbArticle) {
+        // If we were able to successfully update an Article, send it back to the client
+        res.render("home", dbArticle)
+      .catch(function(err) {
+        // If an error occurred, send it to the client
+        res.json(err);
+      });
+    })
+})
 
 // Listening on port 3000
 app.listen(PORT, function() {
