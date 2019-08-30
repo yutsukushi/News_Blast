@@ -20,12 +20,19 @@
                     <div class="col-10">
                         <h3><a href="https://www.oceannews.com{{this.link}}" target="_blank">{{this.title}}</a></h3>
                         <p>{{this.summary}}</p>
-                        <form action="/savedarticles" method="PUT">
-                            <button type="save" class="btn btn-primary">Save</button>
-                        </form>
+                            <button type="submit" class="btn btn-primary" id="saveBtn-{{this.id}}">Save</button>                        
+                        <script>
+                            $("#saveBtn-{{this.id}}").on("click", function(req, res){
+                                $.ajax({
+                                    url: "/savedarticles/{{this.id}}",
+                                    method: "POST"
+                                })
+                            })
+                        </script>
                     </div>
                 </div>
             {{/each}}
+            
         </div>
     </div>  
 </div>

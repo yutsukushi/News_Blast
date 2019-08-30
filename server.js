@@ -100,32 +100,29 @@ app.get("/scraped", function(req, res) {
 // article property, "saved", to be updated to true
 // on the /savedarticles page, find all articles with "saved": true
 // create a note on the article with the unique ID
- 
 
 // save articles
-// app.put("/savedarticles", function(res){
-//     // set clicked article property of saved to true,
-//     db.Article.update({$set: { "saved": true }})
-//     .then(function(savedArticle) {
-//        res.json(savedArticle);
-//     })
-//     .catch(function(err) {
-//         res.json(err);
-//     })
-// })
+app.post("/savedarticles/:id", function(req, res){
+    // set clicked article property of saved to true,
+    db.Article.findById(req.params.id, function(err, savingArticle) {
+        // console.log(doc.link);
+        savingArticle.saved = true;
+        savingArticle.save(function() {
+            console.log('saved!');
+        })
+    });
+   // db.Article.findByIdAndUpdate(req.params.id, {saved: true});
+    res.json({});
+});
 
 // // render the saved article in /savedarticles route
-// app.get("/savedarticles", function(res) {
-//     db.Article.find({ "saved": true })
-//         .then(function(savedArticle) {
-//             var article = { dbSaved: savedArticle };
-//             res.render("saved", article);
-//             // res.json(dbArticle);
-//         })
-//         .catch(function(err) {
-//             res.json(err);
-//         })
-// })
+app.get("/savedarticles", function(req, res) {
+    db.Article.find({ saved: true }, function(err, savedArticles) {
+            res.render("home", {db_headlines: savedArticles});
+            console.log("savedArticles:", savedArticles)
+            // res.json(dbArticle);
+        })
+})
     
 // // post comments on specific article
 // app.get("/savedarticles/:id", function(res) {

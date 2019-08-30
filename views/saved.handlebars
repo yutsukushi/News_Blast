@@ -21,7 +21,7 @@
                         <h3><a href="https://www.oceannews.com{{this.link}}" target="_blank">{{this.title}}</a></h3>
                         <p>{{this.summary}}</p>
                         <form action="/savedarticles/:id" method="POST">
-                            <button type="comment" class="btn btn-primary">Leave a comment</button>
+                            <button type="comment" class="btn btn-primary" id="saveBtn">Leave a comment</button>
                         </form>
                         <form action="/delete/:id" method="DELETE">
                             <button type="delete" class="btn btn-primary">Leave a comment</button>
@@ -32,3 +32,4 @@
         </div>
     </div>  
 </div>
+
